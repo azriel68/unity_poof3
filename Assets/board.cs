@@ -4,13 +4,23 @@ using UnityEngine;
 
 public class board : MonoBehaviour {
     private GameObject crate;
+    private AudioSource cratesound1;
+    private cameraShake cameraShake;
+    private ParticleSystem fx_fire_a;
     public Vector3 destination;
     private bool inputGiven;
     public float speed;
     // Use this for initialization
     void Start () {
         crate = GameObject.Find("crate1");
-        inputGiven = false;
+
+        cratesound1 = GetComponent<AudioSource>();
+
+        cameraShake = new cameraShake();
+
+        fx_fire_a = GetComponent<ParticleSystem>();
+
+            inputGiven = false;
         speed = 0.5f;
     }
 
@@ -20,6 +30,19 @@ public class board : MonoBehaviour {
 
         if (Input.GetMouseButton(0) && !inputGiven)
         {
+
+            if (Input.mousePosition.x < Screen.width / 2)
+            {
+                crate = GameObject.Find("crate2");
+
+            }
+            else
+            {
+                crate = GameObject.Find("crate1");
+            }
+
+            fx_fire_a.Play();
+
             inputGiven = true;
 
             destination = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -27,19 +50,6 @@ public class board : MonoBehaviour {
 
             Debug.Log(destination);
 
-            /*
-
-            Debug.Log(Input.mousePosition);
-            Debug.Log(crate.transform.position);
-            Debug.Log(Camera.main.WorldToScreenPoint(crate.transform.position));
-
-
-            crate.transform.position = Camera.main.ScreenToWorldPoint(pos);
-            */
-
-            /*var ray: Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray))
-                Instantiate(particle, transform.position, transform.rotation);*/
         }
 
         this.move();
@@ -62,11 +72,24 @@ public class board : MonoBehaviour {
 
         }
 
+        if (!cratesound1.isPlaying)
+        {
+            cratesound1.Play();
+            
+        }
+
+        StopAllCoroutines();
+        StartCoroutine(cameraShake.shake(0.05f, 0.1f));
+
+        //GameObject dust = Instantiate(Resources.Load("dust")) as GameObject;
+
         Debug.Log(destination);
 
         if (Vector3.Distance(crate.transform.position, destination) <= 0.1)
         {
             inputGiven = false;
+            if (cratesound1.isPlaying) cratesound1.Stop();
+            //StartCoroutine(cameraShake.shake(0.1f, 0.2f));
         }
 
          
